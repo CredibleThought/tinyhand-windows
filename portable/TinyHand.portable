@@ -1,0 +1,7 @@
+TinyHand portable
+
+While this file is next to TinyHand.exe, TinyHand keeps its settings
+in settings.json in this folder instead of in %APPDATA%, and does not
+offer to start with Windows. Delete this file to use the normal locations.
+
+To remove TinyHand, quit it from its notification-area menu and delete the folder.
