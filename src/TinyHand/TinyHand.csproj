@@ -13,7 +13,7 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationVisualStyles>true</ApplicationVisualStyles>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Product>TinyHand</Product>
     <Company>Steve Fernandes</Company>
     <Description>A hand on a stick for pointing at your screen</Description>
