@@ -14,6 +14,15 @@ internal static class Program
             return;
         }
 
+        // `TinyHand.exe --save-template file.png` writes the hand template for AI image tools.
+        var template = Array.IndexOf(args, "--save-template");
+        if (template >= 0 && template + 1 < args.Length)
+        {
+            using var image = HandImporter.Template();
+            image.Save(args[template + 1], System.Drawing.Imaging.ImageFormat.Png);
+            return;
+        }
+
         // `TinyHand.exe --settings` opens the settings window, starting TinyHand if needed.
         var settings = args.Contains("--settings");
 
@@ -40,6 +49,18 @@ internal static class Program
         var app = new TrayApp();
         if (settings)
             app.OpenSettings();
+        // `TinyHand.exe --add-hand picture.png` opens the Add hand window with that picture.
+        var addHand = Array.IndexOf(args, "--add-hand");
+        if (addHand >= 0 && addHand + 1 < args.Length)
+        {
+            var picture = args[addHand + 1];
+            Application.Idle += OpenOnce;
+            void OpenOnce(object? sender, EventArgs e)
+            {
+                Application.Idle -= OpenOnce;
+                app.AddHand(picture);
+            }
+        }
         Application.Run(app);
         SystemCursors.Show();
     }

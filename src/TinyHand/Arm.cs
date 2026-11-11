@@ -81,8 +81,8 @@ internal sealed class Arm : IDisposable
         _hand = hand;
         if (hand != null)
         {
-            _handSource = Assets.Image($"assets/hands/{hand.Id}_hand.png");
-            _rodSource = Assets.Image($"assets/hands/{hand.Id}_rod.png");
+            _handSource = hand.Image("hand");
+            _rodSource = hand.Image("rod");
         }
         _pose = "";
     }

@@ -68,12 +68,34 @@ This removes the app, its shortcuts and its saved settings.
 | Clear the drawing | **Ctrl+Alt+X** |
 | Turn the pointer off | **Esc**, or the × on the toolbar |
 | Change hands, ink, shapes or sound | Use the toolbar that appears when you move to the bottom of the screen |
+| Add your own hand | Right-click the notification-area hand › Add hand… (see below) |
 | More settings | Right-click the notification-area hand › Settings |
 | Quit | Right-click the notification-area hand › Quit TinyHand |
 
 If you cannot see the hand in the notification area, click the **^** arrow next to the clock. You can drag the icon onto the taskbar to keep it in view.
 
 Clicks on the taskbar and on TinyHand's own menus and settings window always go through, and the normal pointer shows there.
+
+## Add your own hands
+
+You can turn any picture of a hand holding a stick into a TinyHand pointer. The easiest way is to have ChatGPT or Gemini restyle the built-in hand:
+
+1. Right-click the notification-area hand and choose **Add hand…**, or use **Add hand…** in Settings.
+2. Click **Save template…** to save a picture of the Lavender hand on a white background.
+3. Click **Copy prompt**, then open ChatGPT or Gemini, attach the template and paste the prompt. Replace the part in square brackets with the hand you want, for example "a golden robot hand" or "a furry cat paw".
+4. Save the picture it makes, then click **Choose picture…** in TinyHand and pick it.
+5. Check the red circle sits on the fingertip and the dashed line where the hand meets the stick. Click or drag in the picture to move the fingertip if needed.
+6. Give the hand a name, change the ink colour if you like, and click **Add hand**.
+
+The prompt is:
+
+> Redraw the hand in this image as [describe your hand]. Keep exactly the same pose, size and position: the index finger points straight up near the top of the image, and the hand grips the top of a straight vertical stick that runs down to the bottom edge. Keep the stick plain and thin. Use a plain pure white background with no shadow, floor, text or border. Same 2:3 portrait image size.
+
+Your own pictures work too, as long as one finger points up near the top, a straight stick runs down from the hand, and the background is white or transparent. TinyHand removes a white background, finds the fingertip and wrist, and warns you if something looks wrong.
+
+Your hands appear in the toolbar's hand tray and the menus after the built-in ones. To delete one, choose it as the current hand and click **Remove** in Settings. They are saved in `%APPDATA%\TinyHand\hands`, or in a `hands` folder next to the exe in the portable version.
+
+You can also save the template with `TinyHand.exe --save-template template.png`, and open the Add hand window with a picture already chosen with `TinyHand.exe --add-hand picture.png` (when TinyHand is not already running).
 
 ## Notes
 

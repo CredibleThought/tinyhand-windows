@@ -3,9 +3,22 @@ using System.Text.Json;
 
 namespace TinyHand;
 
-/// <summary>One hand style. Positions are fractions of the source image, written by the asset tool.</summary>
+/// <summary>
+/// One hand style. Positions are fractions of the source image, measured by
+/// <see cref="HandImporter"/>. <paramref name="Folder"/> is set for hands the
+/// user added; built-in hands live inside the exe.
+/// </summary>
 internal sealed record Hand(string Id, string Title, string Ink, double Aspect, double HandTop, double Tip,
-    double Wrist, double RodEnd, double TipX, double RodX);
+    double Wrist, double RodEnd, double TipX, double RodX, double HandMinX = 0, double HandMaxX = 1,
+    string? Folder = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsCustom => Folder != null;
+
+    /// <summary>Loads one of the hand's images: "hand", "rod" or "thumb".</summary>
+    public Bitmap Image(string part) =>
+        Folder == null ? Assets.Image($"assets/hands/{Id}_{part}.png") : Assets.File(Path.Combine(Folder, $"{part}.png"));
+}
 
 /// <summary>The fixed lists of choices: hands, ink colours, shapes, effects and sounds.</summary>
 internal static class Catalog
@@ -48,7 +61,14 @@ internal static class Catalog
         ("alt", "Alt"), ("ctrl", "Ctrl"), ("win", "Windows key"), ("off", "Off"),
     };
 
-    public static readonly IReadOnlyList<Hand> Hands = LoadHands();
+    private static readonly List<Hand> BuiltIn = LoadHands();
+    private static List<Hand> _custom = HandStore.Load();
+
+    /// <summary>The built-in hands followed by the ones the user added.</summary>
+    public static IReadOnlyList<Hand> Hands => BuiltIn.Concat(_custom).ToList();
+
+    /// <summary>Reads the user's hands from disk again, after one is added or removed.</summary>
+    public static void ReloadCustom() => _custom = HandStore.Load();
 
     /// <summary>Every style id in menu order: the hands, then the laser dot.</summary>
     public static IEnumerable<(string Id, string Title)> Styles =>
@@ -90,6 +110,17 @@ internal static class Assets
         using var stream = Open(path);
         using var loaded = new Bitmap(stream);
         // Copy so the stream can close; keep straight alpha for scaling.
+        var copy = new Bitmap(loaded.Width, loaded.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(copy))
+            g.DrawImage(loaded, 0, 0, loaded.Width, loaded.Height);
+        return copy;
+    }
+
+    /// <summary>Loads an image file without keeping it locked, so it can be deleted later.</summary>
+    public static Bitmap File(string path)
+    {
+        using var stream = new MemoryStream(System.IO.File.ReadAllBytes(path));
+        using var loaded = new Bitmap(stream);
         var copy = new Bitmap(loaded.Width, loaded.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         using (var g = Graphics.FromImage(copy))
             g.DrawImage(loaded, 0, 0, loaded.Width, loaded.Height);

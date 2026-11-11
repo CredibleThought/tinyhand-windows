@@ -125,7 +125,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         else
         {
-            using var thumb = Assets.Image($"assets/hands/{style}_thumb.png");
+            using var thumb = Catalog.FindHand(style)?.Image("thumb") ?? new Bitmap(1, 1);
             g.DrawImage(thumb, 0, 0, size, size);
         }
         return bmp;
@@ -180,6 +180,7 @@ internal sealed class TrayApp : ApplicationContext
         });
 
         _menu.Items.Add(new ToolStripSeparator());
+        _menu.Items.Add(new ToolStripMenuItem("Add hand…", null, (_, _) => AddHandForm.Run(_settings)));
         _menu.Items.Add(new ToolStripMenuItem("Settings…", null, (_, _) => OpenSettings()));
         // A portable copy may move or run from a removable drive, so it does not offer to start with Windows.
         if (!Settings.Portable)
@@ -200,6 +201,9 @@ internal sealed class TrayApp : ApplicationContext
             menu.DropDownItems.Add(new ToolStripMenuItem(label, null, (_, _) => pick(id)) { Checked = id == current });
         return menu;
     }
+
+    /// <summary>Opens the Add hand window with a picture already chosen.</summary>
+    public void AddHand(string path) => AddHandForm.Run(_settings, null, path);
 
     public void OpenSettings()
     {

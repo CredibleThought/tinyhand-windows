@@ -25,10 +25,36 @@ internal sealed class SettingsForm : Form
         _table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         _table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         Controls.Add(_table);
+        Build();
 
-        var d = settings.Data;
+        // Rebuild when hands are added or removed, or the hand changes elsewhere.
+        _settings.Changed += OnSettingsChanged;
+        FormClosed += (_, _) => _settings.Changed -= OnSettingsChanged;
+    }
+
+    private string _key = "";
+
+    private static string Key(Settings s) => string.Join(",", Catalog.Hands.Select(h => h.Id)) + "|" + s.Style;
+
+    private void OnSettingsChanged()
+    {
+        if (Key(_settings) == _key)
+            return;
+        SuspendLayout();
+        while (_table.Controls.Count > 0)
+            _table.Controls[0].Dispose();
+        _table.RowCount = 0;
+        Build();
+        ResumeLayout(true);
+    }
+
+    private void Build()
+    {
+        _key = Key(_settings);
+        var d = _settings.Data;
         Header("Pointer");
         Combo("Hand", Catalog.Styles, () => _settings.Style, v => _settings.Update(s => s.PointerStyle = v));
+        HandButtons();
         Number("Size (share of screen height)", 0.08m, 0.20m, 0.01m, 2, () => d.PointerSize, v => _settings.Update(s => s.PointerSize = v));
         Check("Shadow", () => d.ShowShadow, v => _settings.Update(s => s.ShowShadow = v));
 
@@ -52,6 +78,22 @@ internal sealed class SettingsForm : Form
         else
             Check("Start with Windows", () => Startup.Enabled, v => Startup.Enabled = v);
         Note("Ctrl+Alt+H turns the pointer on or off. Ctrl+Alt+X clears the drawing. Esc turns the pointer off.");
+    }
+
+    // "Add hand…" always; "Remove" when the current hand is one the user added.
+    private void HandButtons()
+    {
+        var row = new FlowLayoutPanel { AutoSize = true, WrapContents = false };
+        var add = new Button { Text = "Add hand…", AutoSize = true };
+        add.Click += (_, _) => AddHandForm.Run(_settings, this);
+        row.Controls.Add(add);
+        if (Catalog.FindHand(_settings.Style) is { IsCustom: true } hand)
+        {
+            var remove = new Button { Text = "Remove", AutoSize = true };
+            remove.Click += (_, _) => AddHandForm.Remove(_settings, hand, this);
+            row.Controls.Add(remove);
+        }
+        Add(Caption("Your own hands"), row);
     }
 
     private void Add(Control label, Control? field)

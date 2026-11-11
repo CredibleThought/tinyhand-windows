@@ -486,7 +486,7 @@ internal sealed class Toolbar : IDisposable
     {
         if (_thumbs.TryGetValue(id, out var cached))
             return cached;
-        using var source = Assets.Image($"assets/hands/{id}_thumb.png");
+        using var source = Catalog.FindHand(id)?.Image("thumb") ?? new Bitmap(1, 1);
         var size = S(32);
         var bmp = new Bitmap(size, size, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
         using (var g = Graphics.FromImage(bmp))
