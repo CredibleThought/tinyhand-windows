@@ -80,9 +80,9 @@ Clicks on the taskbar and on TinyHand's own menus and settings window always go 
 
 You can turn any picture of a hand holding a stick into a TinyHand pointer. The easiest way is to have ChatGPT or Gemini restyle the built-in hand:
 
-1. Right-click the notification-area hand and choose **Add hand…**, or use **Add hand…** in Settings.
-2. Click **Save template…** to save a picture of the Lavender hand on a white background.
-3. Click **Copy prompt**, then open ChatGPT or Gemini, attach the template and paste the prompt. Replace the part in square brackets with the hand you want, for example "a golden robot hand" or "a furry cat paw".
+1. Right-click the notification-area hand and choose **Add hand…**, or use **Add hand…** in Settings. The window shows a sample hand.
+2. Click **Copy sample hand** and paste it into a new ChatGPT or Gemini chat. (**Save sample…** saves it as a file instead, if you prefer to attach it.)
+3. Click **Copy prompt**, paste it into the same message, and replace the part in square brackets with the hand you want, for example "a golden robot hand" or "a furry cat paw".
 4. Save the picture it makes, then click **Choose picture…** in TinyHand and pick it.
 5. Check the red circle sits on the fingertip and the dashed line where the hand meets the stick. Click or drag in the picture to move the fingertip if needed.
 6. Give the hand a name, change the ink colour if you like, and click **Add hand**.
@@ -95,7 +95,7 @@ Your own pictures work too, as long as one finger points up near the top, a stra
 
 Your hands appear in the toolbar's hand tray and the menus after the built-in ones. To delete one, choose it as the current hand and click **Remove** in Settings. They are saved in `%APPDATA%\TinyHand\hands`, or in a `hands` folder next to the exe in the portable version.
 
-You can also save the template with `TinyHand.exe --save-template template.png`, and open the Add hand window with a picture already chosen with `TinyHand.exe --add-hand picture.png` (when TinyHand is not already running).
+You can also save the sample with `TinyHand.exe --save-template sample.png`, open the Add hand window with `TinyHand.exe --add-hand`, or open it with a picture already chosen with `TinyHand.exe --add-hand picture.png` (when TinyHand is not already running).
 
 ## Notes
 

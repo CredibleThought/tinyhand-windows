@@ -30,7 +30,9 @@ internal static class Program
         if (!first)
         {
             // Already running: starting it again turns the pointer on.
-            PostMessage(HWND_BROADCAST, settings ? TrayApp.SettingsMessage : TrayApp.ShowMessage, IntPtr.Zero, IntPtr.Zero);
+            var message = args.Contains("--add-hand") ? TrayApp.AddHandMessage
+                : settings ? TrayApp.SettingsMessage : TrayApp.ShowMessage;
+            PostMessage(HWND_BROADCAST, message, IntPtr.Zero, IntPtr.Zero);
             return;
         }
 
@@ -49,11 +51,11 @@ internal static class Program
         var app = new TrayApp();
         if (settings)
             app.OpenSettings();
-        // `TinyHand.exe --add-hand picture.png` opens the Add hand window with that picture.
+        // `TinyHand.exe --add-hand [picture.png]` opens the Add hand window, with that picture if given.
         var addHand = Array.IndexOf(args, "--add-hand");
-        if (addHand >= 0 && addHand + 1 < args.Length)
+        if (addHand >= 0)
         {
-            var picture = args[addHand + 1];
+            var picture = addHand + 1 < args.Length ? args[addHand + 1] : null;
             Application.Idle += OpenOnce;
             void OpenOnce(object? sender, EventArgs e)
             {

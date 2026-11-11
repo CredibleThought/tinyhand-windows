@@ -21,6 +21,7 @@ internal sealed class AddHandForm : Form
     private Bitmap? _canvas;
     private HandGeometry? _geometry;
     private Color _inkColor = Color.Purple;
+    private readonly Bitmap _sample;
 
     /// <summary>Shows the window; if a hand is added it becomes the current hand.</summary>
     public static void Run(Settings settings, IWin32Window? owner = null, string? picture = null)
@@ -80,16 +81,26 @@ internal sealed class AddHandForm : Form
         {
             AutoSize = true,
             MaximumSize = new Size(LogicalToDeviceUnits(620), 0),
-            Text = "Choose a picture of a hand holding a stick, with one finger pointing up, on a white or " +
-                   "transparent background.\n\nTo make one: save the template, open ChatGPT or Gemini, attach the " +
-                   "template, paste the prompt and fill in the hand you want. Save the picture it makes, then choose it here.",
+            Text = "Make a new hand from the sample below with ChatGPT or Gemini:\n" +
+                   "1. Click Copy sample hand and paste it into a new ChatGPT or Gemini chat.\n" +
+                   "2. Click Copy prompt, paste it into the same message, and replace the part in [square brackets] " +
+                   "with the hand you want.\n" +
+                   "3. Save the picture it makes, then click Choose picture and pick it.\n\n" +
+                   "Any picture of a hand holding a stick, with one finger pointing up, on a white or transparent " +
+                   "background works too.",
             Margin = new Padding(0, 0, 0, 10),
         };
         layout.Controls.Add(intro);
         layout.SetColumnSpan(intro, 2);
 
         var steps = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 0, 0, 10) };
-        var template = new Button { Text = "Save template…", AutoSize = true };
+        var copySample = new Button { Text = "Copy sample hand", AutoSize = true };
+        copySample.Click += (_, _) =>
+        {
+            CopySample();
+            copySample.Text = "Sample copied";
+        };
+        var template = new Button { Text = "Save sample…", AutoSize = true };
         template.Click += (_, _) => SaveTemplate();
         var prompt = new Button { Text = "Copy prompt", AutoSize = true };
         prompt.Click += (_, _) =>
@@ -99,11 +110,13 @@ internal sealed class AddHandForm : Form
         };
         var choose = new Button { Text = "Choose picture…", AutoSize = true };
         choose.Click += (_, _) => ChoosePicture();
-        steps.Controls.AddRange(new Control[] { template, prompt, choose });
+        steps.Controls.AddRange(new Control[] { copySample, template, prompt, choose });
         layout.Controls.Add(steps);
         layout.SetColumnSpan(steps, 2);
 
         _preview.Size = new Size(LogicalToDeviceUnits(300), LogicalToDeviceUnits(450));
+        _sample = HandImporter.Template();
+        _preview.Sample = _sample;
         _preview.TipMoved += OnTipMoved;
         layout.Controls.Add(_preview);
 
@@ -147,11 +160,23 @@ internal sealed class AddHandForm : Form
         SetInk(_inkColor);
     }
 
+    // Puts the sample on the clipboard as both a bitmap and a PNG, so it
+    // pastes into browsers (ChatGPT, Gemini) as well as desktop apps.
+    private void CopySample()
+    {
+        var data = new DataObject();
+        data.SetImage(_sample);
+        var png = new MemoryStream();
+        _sample.Save(png, System.Drawing.Imaging.ImageFormat.Png);
+        data.SetData("PNG", false, png);
+        Clipboard.SetDataObject(data, true);
+    }
+
     private void SaveTemplate()
     {
         using var dialog = new SaveFileDialog
         {
-            Title = "Save the hand template",
+            Title = "Save the sample hand",
             FileName = "tinyhand-template.png",
             Filter = "PNG image|*.png",
             InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
@@ -274,6 +299,7 @@ internal sealed class AddHandForm : Form
         {
             _canvas?.Dispose();
             _thumb.Image?.Dispose();
+            _sample.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -285,6 +311,10 @@ internal sealed class AddHandForm : Form
         private HandGeometry? _g;
 
         public event Action<PointF>? TipMoved;
+
+        /// <summary>Shown, with a caption, until a picture is chosen.</summary>
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+        public Bitmap? Sample { get; set; }
 
         public HandPreview()
         {
@@ -322,7 +352,13 @@ internal sealed class AddHandForm : Form
                 g.DrawRectangle(border, 0, 0, Width - 1, Height - 1);
             if (_image == null || _g == null)
             {
-                TextRenderer.DrawText(g, "Choose a picture to see it here", Font, ClientRectangle, Color.Gray,
+                if (Sample != null)
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.DrawImage(Sample, r);
+                }
+                var caption = new Rectangle(0, Height - LogicalToDeviceUnits(44), Width, LogicalToDeviceUnits(40));
+                TextRenderer.DrawText(g, "Sample hand. Your picture will show here.", Font, caption, Color.DimGray,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
                 return;
             }

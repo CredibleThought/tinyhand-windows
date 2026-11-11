@@ -11,6 +11,7 @@ namespace TinyHand;
 internal sealed class TrayApp : ApplicationContext
 {
     public static readonly uint ShowMessage = RegisterWindowMessage("TinyHand.Show");
+    public static readonly uint AddHandMessage = RegisterWindowMessage("TinyHand.AddHand");
     public static readonly uint SettingsMessage = RegisterWindowMessage("TinyHand.Settings");
     public static readonly uint QuitMessage = RegisterWindowMessage("TinyHand.Quit");
 
@@ -203,7 +204,7 @@ internal sealed class TrayApp : ApplicationContext
     }
 
     /// <summary>Opens the Add hand window with a picture already chosen.</summary>
-    public void AddHand(string path) => AddHandForm.Run(_settings, null, path);
+    public void AddHand(string? path) => AddHandForm.Run(_settings, null, path);
 
     public void OpenSettings()
     {
@@ -244,6 +245,8 @@ internal sealed class TrayApp : ApplicationContext
                 _app.OnHotkey((int)m.WParam);
             else if (m.Msg == (int)ShowMessage)
                 _app._controller.Activate();
+            else if (m.Msg == (int)AddHandMessage)
+                _app.AddHand(null);
             else if (m.Msg == (int)SettingsMessage)
                 _app.OpenSettings();
             else if (m.Msg == (int)QuitMessage)
